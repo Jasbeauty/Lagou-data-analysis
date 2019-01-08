@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <title>不同城市不同薪资水平占比</title>
+</head>
+<body style="height: 100%; margin: 0">
+    <div id="container" style="height: 100%"></div>
+
+    <script src="../static/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var dom = document.getElementById('container');
+            var myChart = echarts.init(dom);
+            var app = {};
+            var option = null;
+            // var data_map = getData();
+            var city_key = [];
+
+            var series = [];
+
+            
+            app.title = '不同城市不同薪资水平占比';
+            app.config = {
+                rotate: 90,
+                align: 'left',
+                verticalAlign: 'middle',
+                position: 'insideBottom',
+                distance: 2,
+
+            };
+
+
+            option = {
+                color: ['#fff143', '#96ce54', '#88ada6', '#56004f', '#c93756', '#000000', '#bacac6', '#ae70000', '#f47983', '#edd1d8', '#7bcfa6',
+                '#ff8c31', '#808080', '#c93756', '#003472', '#a88462', '#789262', '#44cef6', '#426666', '#a1afc9', '#50616d', '#057748',
+                '#c32136', '#60281e', '#f9906f', '#b0a4e3', '#549688', '#ffb3a7', '#babac6','#d9b611', '#2edfa3'],
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: city_key
+                },
+                toolbox: {
+                    show: true,
+                    orient: 'vertical',
+                    left: 'right',
+                    top: 'center',
+                    feature: {
+                        mark: {show: true},
+                        dataView: {show: true, readOnly: false},
+                        magicType: {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                        restore: {show: true},
+                        saveAsImage: {show: true}
+                    }
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        axisTick: {show: false},
+                        data: ['应届毕业生', '1年以下', '1-3年', '3-5年', '5-10年', '10年以上', '不限']
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value'
+                    }
+                ],
+                series: getData()
+            };
+
+
+            if (option && typeof option === 'object'){
+                myChart.setOption(option, true);
+            }
+
+
+            function getData() {
+               var result = null;
+                //ajax
+               $.ajax({
+                   url:'/get_bar_data',
+                   type:'POST',
+                   async:false,
+                   dataType:'json',
+                   success:function (data) {
+                       result = data;
+                   },
+                   error:function (msg) {
+                       console.log(msg);
+                       alert('System Error')
+                   }
+               });
+               // console.log(result);
+                return buildSeries(result);
+           }
+           
+            function buildSeries(result) {
+
+                for(var k in result){
+                    city_key.push(k);
+                    var map = {
+                        name: k,
+                        type: 'bar',
+                        // label: labelOption,
+                        data: result[k]
+                    };
+                    series.push(map)
+                }
+                console.log(series);
+                return series;
+
+            }
+
+        }
+    )
+    </script>
+
+</body>
+</html>
