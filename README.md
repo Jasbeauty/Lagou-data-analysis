@@ -83,10 +83,10 @@ conn = pymysql.connect(host='localhost', port=3306, user='root', password='xxx',
                        charset='utf8', use_unicode=True)
 ```
 
-##### 城市岗位分布 柱状图
+### 城市岗位分布 柱状图
 
 
-##### 工作经验 饼图
+### 工作经验 饼图
 > [`matplotlib.pyplot.pie()`](https://www.sohu.com/a/199233196_163476)函数：
 ``` python
 pie(x, explode=None, labels=None, colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'), autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None, radius=None, counterclock=True, wedgeprops=None, textprops=None, center = (0, 0), frame = False)
@@ -99,10 +99,10 @@ pie(x, explode=None, labels=None, colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'
 `plt.savefig()` 需要在 `plt.show()` 前调用
 > 因为在 `plt.show()` 后实际上已经创建了一个新的空白的图片，这时候使用 `plt.savefig()` 就会保存这个新生成的空白图片
 
-##### 公司规模 饼图
+### 公司规模 饼图
 
 
-##### 不同城市的平均薪资状况 条形图
+### 不同城市的平均薪资状况 条形图
 
 > * 正则表达式中
 >   * `re.findall()`       返回string中所有与pattern相匹配的全部字串（返回形式为数组）
@@ -125,7 +125,7 @@ pie(x, explode=None, labels=None, colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'
 >       * 横轴上的数据是连续的，是一个范围
 >       * 主要用于展示数据型数据
 
-##### 全国岗位分布 地图
+### 全国岗位分布 地图
 * mapServer.py
 * maps.html
 * 运行 `http://127.0.0.1:5000/maps`
@@ -263,7 +263,7 @@ Python 中实现字符串转换为列表
 * `strip()` 用于移除字符串头尾指定的字符
 * `split()` 将一个字符串分裂成多个字符串组成的列表
 
-##### 不同城市工作年限要求 Bar_Label_Rotation
+### 不同城市工作年限要求 Bar_Label_Rotation
 * mapServer.py
 * maps.html
 * 运行 `http://127.0.0.1:5000/bar`
