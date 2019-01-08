@@ -23,14 +23,14 @@
 
 ##### 反爬虫
 * 使用代理IP
-```
+``` python
 proxies = {'http': 'http://118.190.95.43:9001', 'http': 'http://61.177.47.86:60086',
                'http': 'http://120.92.74.237:3128'}
                
 response = requests.post(proxies=proxies, ... , ...)
 ```
 * 随机选择 `User-Agent` 中的浏览器
-```
+``` python
 agents = [
     'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; QQBrowser/7.0.3698.400)'
     ...
@@ -41,7 +41,7 @@ headers['User-Agent'] = agents.pop(random.randint(0, 6))
 ```
         
 * 爬取每条数据时，设置间隔时间
-```
+``` python
 time.sleep(round(random.uniform(3, 5), 2))
 
 time.sleep(random.randint(3, 5))
@@ -52,7 +52,7 @@ time.sleep(random.randint(3, 5))
 ### 数据分析
 ##### 准备
 Best way to Install：`pip3 install pandas`
-```
+``` python
 import pandas as pd
 import matplotlib.pyplot as plt
 ```
@@ -76,7 +76,7 @@ plt.rcParams['font.sans-serif'] = ['simhei']
 # plt.rcParams['axes.unicode_minus'] = False
 ```
 ###### 连接数据库
-```
+``` python
 import pymysql
 
 conn = pymysql.connect(host='localhost', port=3306, user='root', password='xxx', db='lagou_db',
@@ -84,45 +84,11 @@ conn = pymysql.connect(host='localhost', port=3306, user='root', password='xxx',
 ```
 
 ##### 城市岗位分布 柱状图
-```
-# city_datas数据类型：pandas.core.frame.DataFrame
-city_datas = pd.read_sql("select city, count(city) as num from lagou_table group by city", conn)
-city_datas_index = city_datas.set_index("city")
-city_datas_index.sort_values(by="num")[:].num.plot(color='g', kind='bar')
-plt.title('City Distribution for Python')
-plt.savefig('analysisPis/cityDistribution.png')
-plt.show()
-```
+
 
 ##### 工作经验 饼图
-```
-# mysql筛选出某列中的重复值并统计对应数量
-experience = pd.read_sql("select work_year,count(work_year) as num from lagou_table group by work_year having count(work_year) > 1", conn)
-# 获取DataFrame格式中某列的值
-work_year = experience.iloc[:, 0]
-num = experience.iloc[:, 1]
-# numpy.ndarray类型
-work_year_array = work_year.values
-num_array = num.values
-
-# 将numpy.ndarray类型转换为list类型
-work_year_array = work_year_array.tolist()
-num_array = num_array.tolist()
-
-# explode指定饼图某些部分的突出显示，即呈现爆炸式
-explode = [0.1, 0, 0.1, 0.1, 0, 0, 0]
-
-plt.pie(num_array, labels=work_year_array, autopct='%1.2f%%', explode=explode)
-plt.title('Working Experience Chart')
-
-# supported formats: eps, pdf, pgf, png, ps, raw, rgba, svg, svgz
-plt.savefig('analysisPis/experienceChart.png')
-
-plt.show()
-```
-
 > [`matplotlib.pyplot.pie()`](https://www.sohu.com/a/199233196_163476)函数：
-```
+``` python
 pie(x, explode=None, labels=None, colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'), autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None, radius=None, counterclock=True, wedgeprops=None, textprops=None, center = (0, 0), frame = False)
 ```
 > * x：指定绘图的数据，如果sum(x) > 1，会使用sum(x)归一化
@@ -134,72 +100,9 @@ pie(x, explode=None, labels=None, colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'
 > 因为在 `plt.show()` 后实际上已经创建了一个新的空白的图片，这时候使用 `plt.savefig()` 就会保存这个新生成的空白图片
 
 ##### 公司规模 饼图
-```
-size = pd.read_sql("select company_size,count(company_size) as num from lagou_table where company_size not like 'None' group by company_size having count(company_size) > 1", conn)
 
-company_size = size.iloc[:, 0]
-num = size.iloc[:, 1]
-company_size_array = company_size.values
-num_array = num.values
-
-company_size_array = company_size_array.tolist()
-num_array = num_array.tolist()
-explode = [0.1, 0, 0.1, 0.1, 0, 0]
-
-plt.pie(num_array, labels=company_size_array, autopct='%1.2f%%', explode=explode)
-plt.title('Company Size Chart')
-
-plt.savefig('analysisPis/companySize.png')
-plt.show()
-```
 
 ##### 不同城市的平均薪资状况 条形图
-```
-citys = pd.read_sql("select city, count(city) from lagou_table group by city having count(city) > 1", conn)
-city = citys.iloc[:, 0]
-city_count = citys.iloc[:, 1]
-city_array = city.values
-city_array = city_array.tolist()
-counts = city_count.values.tolist()
-
-# seq用于统计每个城市中的工资
-seq = 0
-avg_l = []
-for city_item in city_array:
-    salary_list = []
-    avg_list = []
-    salary = pd.read_sql("select salary from lagou_table where city=\'{}\' order by city".format(city_item), conn)
-    data = salary.iloc[:, 0]
-    data_array = data.values
-    data_array = data_array.tolist()
-
-    for i in data_array:
-        i = i.replace('k', '')
-        i = i.replace('-', ' ')
-        i = re.findall(r'\d+', i)
-        salary_list.append(i)
-    # print("城市：" + city_item)
-    for s in salary_list:
-        if len(s) > 1:
-            avg = sum([int(a) for a in s]) / 2
-        else:
-            avg = int(s[0])
-        avg_list.append(avg)
-    # print(round(sum(avg_list) / counts[seq], 2))
-    avg_l.append(round(sum(avg_list) / counts[seq], 2))
-    seq += 1
-
-
-# 画条形图
-plt.bar(city_array, avg_l, label='平均工资')
-plt.legend()
-plt.xticks(rotation=45)
-plt.xlabel('城市')
-plt.ylabel('平均工资/K')
-plt.title('全国python岗位各城市平均工资')
-plt.savefig('analysisPis/avgCitySalary.png')
-plt.show()
-```
 
 > * 正则表达式中
 >   * `re.findall()`       返回string中所有与pattern相匹配的全部字串（返回形式为数组）
@@ -227,7 +130,7 @@ plt.show()
 * maps.html
 * 运行 `http://127.0.0.1:5000/maps`
 ###### 构造字典格式
-```
+``` python
 import pandas as pd
 
 information = pd.read_sql(
@@ -261,7 +164,7 @@ information = pd.read_sql(
         a_list.append(a)
 ```
 ###### Ajax获取后台data
-```
+``` python
 from flask import Flask, render_template, jsonify
 
 # 生成Flask实例
@@ -282,7 +185,7 @@ def maps():
 if __name__ == '__main__':
     app.run()
 ```
-```
+``` html
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <script type="text/javascript">
@@ -317,7 +220,7 @@ if __name__ == '__main__':
 
 [ECharts](http://www.echartsjs.com/examples/editor.html?c=map-polygon) 
 > 需要将 `echarts.min.js` 引用放在新建的 `static` 文件下
-```
+``` html
 <script src='../static/echarts.min.js'></script>
 ```
 ```
@@ -367,92 +270,10 @@ Python 中实现字符串转换为列表
 > [Left join、Right Join、Inner Join 用法](https://www.cnblogs.com/pcjim/articles/799302.html)
 
 ###### 构建 Map 格式
-```
-select t.city, t.work_year, count(t.id) as work_count from `lagou_table` t group by t.city, t.work_year;
-```
-> 根据城市和工作年限分组，统计出每个城市不同年限要求的岗位总数
-
-```
-city_datas = pd.read_sql("select city, count(city) from lagou_table group by city having count(city) > 1", conn).iloc[:, 0]
-    city_list = city_datas.values.tolist()
-
-cursor = conn.cursor()
-    sql = "select t.city, t.work_year, count(t.id) as work_count from `lagou_table` t group by t.city, t.work_year"
-    cursor.execute(sql)
-    result = cursor.fetchall()
-
-    city_map = {}
-    for city in city_list:
-        experience_count = [0] * 7
-        for tp in result:
-            if tp[0] == city:
-                if tp[1] == '应届毕业生':
-                    experience_count[0] = int(tp[2])
-                elif tp[1] == '1年以下':
-                    experience_count[1] = int(tp[2])
-                ...
-                ...
-
-        city_map[city] = experience_count
-```
-> 通过两次遍历，生成 `{'上海': [38, 5, 223, 367, 68, 2, 68], '东莞': [0, 0, 5, 1, 0, 0, 0], ...}` 这种dict结构，列表默认按照工作年限从小到大的顺序
+* 根据城市和工作年限分组，统计出每个城市不同年限要求的岗位总数
+* 通过两次遍历，生成 `{'上海': [38, 5, 223, 367, 68, 2, 68], '东莞': [0, 0, 5, 1, 0, 0, 0], ...}` 这种dict结构，列表默认按照工作年限从小到大的顺序
 
 ###### Ajax获取后台data
-```
-@app.route('/bar', methods=['GET'])
-def show_map():
-    return render_template('BarChart.html')
-    
-    
-@app.route('/get_bar_data', methods=['POST'])
-def get_bar_data():
-    ...
-    ...
-    return jsonify(city_map)
-```
-
-```
-var city_key = [];
-var series = [];
-
-function getData() {
-               var result = null;
-                //ajax
-               $.ajax({
-                   url:'/get_bar_data',
-                   type:'POST',
-                   async:false,
-                   dataType:'json',
-                   success:function (data) {
-                       result = data;
-                   },
-                   error:function (msg) {
-                       console.log(msg);
-                       alert('System Error')
-                   }
-               });
-               // console.log(result);
-                return buildSeries(result);
-           }
-        
-// 按照模版格式，自定义构造 json
-function buildSeries(result) {
-
-                for(var k in result){
-                    city_key.push(k);
-                    var map = {
-                        name: k,
-                        type: 'bar',
-                        // label: labelOption,
-                        data: result[k]
-                    };
-                    series.push(map)
-                }
-                console.log(series);
-                return series;
-
-            }
-```
 > * JS 获取 Map 的 key 和 value
 
 ```
